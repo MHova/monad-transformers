@@ -1,15 +1,15 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
 module MyMaybeT (
   MaybeT,
   runMaybeT
 ) where
 
-import Control.Monad (liftM)
-import Control.Monad.State (MonadState, get, put)
-import Control.Monad.Trans (MonadTrans, lift)
+import           Control.Monad       (liftM)
+import           Control.Monad.State (MonadState, get, put)
+import           Control.Monad.Trans (MonadTrans, lift)
 
 newtype MaybeT m a = MaybeT {
   runMaybeT :: m (Maybe a)
@@ -26,8 +26,6 @@ instance (Monad m) => Monad (MaybeT m) where
 
   return = MaybeT . return . Just
 
-  fail _ = MaybeT $ return Nothing
-
 instance (Monad m, Functor m) => Applicative (MaybeT m) where
   pure = MaybeT . pure . Just
   -- MaybeT m (a -> b) -> MaybeT m a -> MaybeT m b
@@ -40,7 +38,7 @@ instance (Monad m, Functor m) => Applicative (MaybeT m) where
         maybeA <- ma
         case maybeA of
           Nothing -> return Nothing
-          Just a -> return . Just $ f a
+          Just a  -> return . Just $ f a
 
 instance (Functor m) => Functor (MaybeT m) where
   -- fmap :: Functor f => (a -> b) -> f a -> f b

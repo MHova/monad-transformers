@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE UndecidableInstances       #-}
 
 module MaybeTParse
     (
@@ -9,16 +9,17 @@ module MaybeTParse
     , evalParse
     ) where
 
-import MyMaybeT (MaybeT, runMaybeT)
-import Control.Monad.State (MonadState, State, evalState, get, put)
-import Control.Monad.Trans (MonadTrans, lift)
-import Data.Int (Int64)
+import           Control.Monad.State  (MonadState, State, evalState, get, put)
+import           Control.Monad.Trans  (MonadTrans, lift)
 import qualified Data.ByteString.Lazy as L
+import           Data.Int             (Int64)
+import           MyMaybeT             (MaybeT, runMaybeT)
 
-data ParseState = ParseState {
-      string :: L.ByteString
+data ParseState = ParseState
+    { string :: L.ByteString
     , offset :: Int64
-    } deriving (Show)
+    }
+    deriving (Show)
 
 newtype Parse a = P {
       runP :: EitherT String (State ParseState) a
@@ -60,12 +61,12 @@ instance (Monad m) => Monad (EitherT a m) where
   ma >>= f = EitherT $ do
     ea <- runEitherT ma
     case ea of
-      Left e -> return $ Left e
+      Left e  -> return $ Left e
       Right a -> runEitherT $ f a
 
 instance MonadTrans (EitherT a) where
   -- lift :: (MonadTrans t, Monad m) => m a -> t m a
-  lift ma = EitherT $ ma >>= return . Right
+  lift = EitherT . fmap Right
 
 instance (MonadState s m) => MonadState s (EitherT a m) where
   get = lift get
